@@ -1,0 +1,272 @@
+{
+  "configuration" : { },
+  "description" : "Architecture model for the Invoice package with external integrations",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# Use Laravel for Invoice Package\n\nDate: 2025-09-12\n\n## Status\nAccepted\n\n## Context\nWe are building a reusable invoice package intended to integrate with Laravel applications. Developers should be able to install, configure, and use the package easily.\n\n## Decision\nWe will develop the package as a **Laravel package** using a ServiceProvider, configuration file, and facades where appropriate.\n\n## Consequences\n- Package integrates naturally into Laravel apps using standard mechanisms.\n- Developers can publish config, migrations, and assets.\n- Limits package to Laravel projects only.\n",
+      "date" : "2025-09-12T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "status" : "Accepted",
+      "title" : " Use Laravel for Invoice Package"
+    }, {
+      "content" : "# Communication with external providers\n\nDate: 2025-09-13\n\n## Status\nAccepted\n\n## Context\nWe need to integrate with external invoice providers (e.g., Fortnox, Stripe, etc.). There are two main options:\n\nREST API polling/calls → Our system calls the provider’s REST API to create, fetch, or update invoices.\nWebhooks/event-driven → The provider pushes updates to us (or we push events to them).\n\nWe must ensure reliability, handle authentication securely, and support multiple providers with potentially different integration patterns.\n\n## Decision\nWe will primarily use REST API communication with providers, since all major providers expose REST APIs. Where providers also support webhooks for status updates, we will consume them to reduce polling and improve timeliness.\n\n## Consequences\n- REST is widely supported, predictable, and easier to standardize across multiple providers.\n- REST-only would require periodic polling → inefficient.\n- Webhooks introduce complexity (security validation, retries, public endpoint exposure).\n- Webhooks improve responsiveness for invoice status changes (paid, canceled, overdue).\n- Providers differ in webhook capabilities, meaning we’ll need fallback to polling in some cases.\n",
+      "date" : "2025-09-13T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "2",
+      "status" : "Accepted",
+      "title" : " Communication with external providers"
+    }, {
+      "content" : "# Read-only integration with external providers\n\nDate: 2025-09-13\n\n## Status\nProposed\n\n## Context\nWe need to synchronize invoices with the external providers. Our system is the authoritative source of invoice data. Updating or overwriting invoices in the provider’s system creates risks of divergence and conflicts. Instead, we want a simple model: push a draft invoice once, then treat the external provider as the authority on its lifecycle (payment, cancellation, reminders).\n\n## Decision\nWe will only create draft invoices in the external provider system via REST API.\n\n- After creation, we will not modify or delete invoices externally.\n- Our system will listen to status changes from the provider (via webhooks if available, or periodic polling otherwise).\n- All updates will be recorded internally as read-only syncs from the provider.\n- \n## Consequences\n- Keeps our system as the source of truth for invoice creation.\n- Reduces risk of overwriting or conflicting with provider data.\n- Simplifies integration — only one outbound call type (“create draft”).\n- We depend on the provider for the final invoice lifecycle → limited control.\n- If a mistake occurs after draft creation, we cannot “fix” it externally — must void/cancel and create a new invoice.\n- Requires robust webhook/polling handling to stay in sync.\n",
+      "date" : "2025-09-13T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "3",
+      "status" : "Proposed",
+      "title" : " Read-only integration with external providers"
+    } ],
+    "sections" : [ {
+      "content" : "## Getting started\n",
+      "filename" : "context.md",
+      "format" : "Markdown",
+      "order" : 1,
+      "title" : ""
+    } ]
+  },
+  "id" : 1,
+  "lastModifiedDate" : "2025-09-13T05:15:50Z",
+  "model" : {
+    "people" : [ {
+      "id" : "1",
+      "location" : "Unspecified",
+      "name" : "Developer",
+      "properties" : {
+        "structurizr.dsl.identifier" : "developer"
+      },
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Laravel App",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.webapp"
+        },
+        "relationships" : [ {
+          "description" : "Uses invoice package",
+          "destinationId" : "4",
+          "id" : "13",
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Invoice Package",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.package"
+        },
+        "relationships" : [ {
+          "description" : "Makes API call to",
+          "destinationId" : "5",
+          "id" : "10",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Read from and writes to",
+          "destinationId" : "6",
+          "id" : "14",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Dispatches jobs",
+          "destinationId" : "7",
+          "id" : "15",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Dispatches events",
+          "destinationId" : "8",
+          "id" : "16",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        }, {
+          "description" : "Dispatches events",
+          "destinationId" : "3",
+          "id" : "17",
+          "sourceId" : "4",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Invoice API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.api"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "9",
+          "id" : "11",
+          "sourceId" : "5",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Read from and writes to",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.database"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Handles async jobs (webhooks, retries, invoice generation)",
+        "documentation" : { },
+        "id" : "7",
+        "name" : "Queue Worker",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.queue"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Laravel Queue"
+      }, {
+        "description" : "Dispatches events to main-application",
+        "documentation" : { },
+        "id" : "8",
+        "name" : "Event dispatcher",
+        "properties" : {
+          "structurizr.dsl.identifier" : "system.events"
+        },
+        "tags" : "Element,Container"
+      } ],
+      "documentation" : { },
+      "id" : "2",
+      "location" : "Unspecified",
+      "name" : "Laravel application",
+      "properties" : {
+        "structurizr.dsl.identifier" : "system"
+      },
+      "relationships" : [ {
+        "description" : "Reads from and writes to",
+        "destinationId" : "9",
+        "id" : "12",
+        "linkedRelationshipId" : "11",
+        "sourceId" : "2"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "documentation" : { },
+      "id" : "9",
+      "location" : "Unspecified",
+      "name" : "Invoice System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "provider"
+      },
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "Laravel Invoice Package",
+  "properties" : {
+    "structurizr.dsl" : "d29ya3NwYWNlICJMYXJhdmVsIEludm9pY2UgUGFja2FnZSIgIkFyY2hpdGVjdHVyZSBtb2RlbCBmb3IgdGhlIEludm9pY2UgcGFja2FnZSB3aXRoIGV4dGVybmFsIGludGVncmF0aW9ucyIgewogICAgIWlkZW50aWZpZXJzIGhpZXJhcmNoaWNhbAogICAgIWRvY3MgZG9jcwogICAgIWFkcnMgYWRyCgogICAgbW9kZWwgewogICAgICAgIGRldmVsb3BlciA9IHBlcnNvbiAiRGV2ZWxvcGVyIgogICAgICAgIHN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJMYXJhdmVsIGFwcGxpY2F0aW9uIiB7CiAgICAgICAgICAgIHdlYkFwcCA9IGNvbnRhaW5lciAiTGFyYXZlbCBBcHAiCiAgICAgICAgICAgIHBhY2thZ2UgPSBjb250YWluZXIgIkludm9pY2UgUGFja2FnZSIKICAgICAgICAgICAgYXBpID0gY29udGFpbmVyICJJbnZvaWNlIEFQSSIKICAgICAgICAgICAgZGF0YWJhc2UgPSBjb250YWluZXIgIkRhdGFiYXNlIiAiUmVhZCBmcm9tIGFuZCB3cml0ZXMgdG8iCiAgICAgICAgICAgIHF1ZXVlID0gY29udGFpbmVyICJRdWV1ZSBXb3JrZXIiICJIYW5kbGVzIGFzeW5jIGpvYnMgKHdlYmhvb2tzLCByZXRyaWVzLCBpbnZvaWNlIGdlbmVyYXRpb24pIiAiTGFyYXZlbCBRdWV1ZSIKICAgICAgICAgICAgZXZlbnRzID0gY29udGFpbmVyICJFdmVudCBkaXNwYXRjaGVyIiAiRGlzcGF0Y2hlcyBldmVudHMgdG8gbWFpbi1hcHBsaWNhdGlvbiIKICAgICAgICB9CgogICAgICAgIHByb3ZpZGVyID0gc29mdHdhcmVTeXN0ZW0gIkludm9pY2UgU3lzdGVtIgoKICAgICAgICBzeXN0ZW0ucGFja2FnZSAtPiBzeXN0ZW0uYXBpICJNYWtlcyBBUEkgY2FsbCB0byIKICAgICAgICBzeXN0ZW0uYXBpIC0+IHByb3ZpZGVyICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iCgogICAgICAgIHN5c3RlbS53ZWJBcHAgLT4gc3lzdGVtLnBhY2thZ2UgIlVzZXMgaW52b2ljZSBwYWNrYWdlIgogICAgICAgIHN5c3RlbS5wYWNrYWdlIC0+IHN5c3RlbS5kYXRhYmFzZSAiUmVhZCBmcm9tIGFuZCB3cml0ZXMgdG8iCiAgICAgICAgc3lzdGVtLnBhY2thZ2UgLT4gc3lzdGVtLnF1ZXVlICJEaXNwYXRjaGVzIGpvYnMiCiAgICAgICAgc3lzdGVtLnBhY2thZ2UgLT4gc3lzdGVtLmV2ZW50cyAiRGlzcGF0Y2hlcyBldmVudHMiCgogICAgICAgIHN5c3RlbS5wYWNrYWdlIC0+IHN5c3RlbS53ZWJBcHAgIkRpc3BhdGNoZXMgZXZlbnRzIgogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICBzeXN0ZW1Db250ZXh0IHN5c3RlbSAiRGlhZ3JhbTEiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9sYXlvdXQgbHIKICAgICAgICB9CgogICAgICAgIGNvbnRhaW5lciBzeXN0ZW0gewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dCBscgogICAgICAgIH0KCiAgICAgICAgdGhlbWUgZGVmYXVsdAogICAgfQp9"
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "lastSavedView" : "Container-001",
+      "styles" : { },
+      "terminology" : { },
+      "themes" : [ "https://static.structurizr.com/themes/default/theme.json" ]
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "elements" : [ {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "generatedKey" : true,
+      "key" : "Container-001",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "10"
+      }, {
+        "id" : "11"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "15"
+      }, {
+        "id" : "16"
+      }, {
+        "id" : "17"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "Diagram1",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "12"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
+  }
+}
