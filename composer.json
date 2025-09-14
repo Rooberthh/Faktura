@@ -19,17 +19,25 @@
     },
     "funding": [],
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "illuminate/config": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/events": "^12.0",
+        "moneyphp/money": "^4.7"
     },
     "require-dev": {
+        "fakerphp/faker": "^1.24",
         "laravel/pint": "^1.13.7",
-        "pestphp/pest": "^3.5",
-        "phpstan/phpstan": "^1.10.50"
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.1",
+        "phpstan/phpstan": "^2.1"
     },
     "suggest": {},
     "autoload": {
         "psr-4": {
-            "Rooberthh\\Faktura\\": "src/"
+            "Rooberthh\\Faktura\\": "src/",
+            "Rooberthh\\Faktura\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
@@ -59,5 +67,12 @@
     "scripts-descriptions": {
         "pint": "Run Laravel Pint on the codebase.",
         "stan": "Run PhpStan on the codebase."
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rooberthh\\Faktura\\FakturaServiceProvider"
+            ]
+        }
     }
 }
