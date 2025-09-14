@@ -9,6 +9,7 @@ use Modules\Billing\Domain\Support\Objects\Seller;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
+use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
@@ -70,6 +71,7 @@ class Invoice extends Model
     {
         return [
             'status' => Status::class,
+            'provider' => Provider::class,
             'seller' => SellerCast::class,
             'buyer' => BuyerCast::class,
             'total' => PriceCast::class,

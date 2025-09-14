@@ -4,6 +4,7 @@ namespace Rooberthh\Faktura\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Rooberthh\Faktura\Models\Invoice;
+use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Price;
 
@@ -43,7 +44,7 @@ class InvoiceFactory extends Factory
             'seller_iban' => $this->faker->iban(),
             'seller_payment_reference' => $this->faker->unique()->text(),
             'total' => Price::fromMinor($this->faker->numberBetween(10000, 100000)),
-            'provider' => null,
+            'provider' => Provider::IN_MEMORY,
             'external_id' => null,
             'metadata' => null,
         ];

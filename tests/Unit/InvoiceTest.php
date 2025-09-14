@@ -5,6 +5,7 @@ use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Database\Factories\InvoiceLineFactory;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Models\InvoiceLine;
+use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
@@ -54,4 +55,15 @@ it('can have a seller', function () {
         ->create();
 
     expect($invoice->seller)->toBeInstanceOf(Seller::class)->and($invoice->seller->name)->toBe($invoice->seller_name);
+});
+
+it('can have a provider', function () {
+    $invoice = InvoiceFactory::new()
+        ->has(InvoiceLineFactory::new(), 'lines')
+        ->create();
+
+    $invoice->provider = Provider::STRIPE;
+    $invoice->save();
+
+    expect($invoice->provider)->toBeInstanceOf(Provider::class)->and($invoice->provider)->toBe(Provider::STRIPE);
 });
