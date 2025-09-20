@@ -2,27 +2,34 @@
 
 namespace Rooberthh\Faktura\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Modules\Billing\Domain\Support\Objects\Seller;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
+use Rooberthh\Faktura\Contracts\GatewayContract;
+use Rooberthh\Faktura\Services\InMemoryGateway;
+use Rooberthh\Faktura\Services\StripeGateway;
+use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
+use Rooberthh\Faktura\Support\DataObjects\InvoiceLine as InvoiceLineDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
 
 /**
- * @property int $id
- * @property string $invoice_number
- * @property Status $status
- * @property Buyer $buyer
- * @property Seller $seller
- * @property Price $total
- * @property string $provider
- * @property string $external_id
+ * @property int      $id
+ * @property string   $invoice_number
+ * @property Status   $status
+ * @property Buyer    $buyer
+ * @property Seller   $seller
+ * @property Price    $total
+ * @property Provider $provider
+ * @property string   $external_id
  */
 class Invoice extends Model
 {
@@ -67,14 +74,66 @@ class Invoice extends Model
         return $this->hasMany(InvoiceLine::class);
     }
 
+    public function gateway(): GatewayContract
+    {
+        return match ($this->provider) {
+            Provider::STRIPE => app(StripeGateway::class),
+            Provider::IN_MEMORY => app(InMemoryGateway::class),
+            default => throw new \InvalidArgumentException("Unknown gateway: {$this->provider->value}"),
+        };
+    }
+
+    public function syncFromDto(InvoiceDTO $invoiceDto)
+    {
+        DB::transaction(function () use ($invoiceDto) {
+            $this->status = $invoiceDto->status;
+            $this->external_id = $invoiceDto->externalId;
+            $this->provider = $invoiceDto->provider;
+            $this->save();
+
+            // Delete and re-add lines since this is just a read-replica
+            $this->lines()->delete();
+            $this->lines()->createMany(
+                $invoiceDto->lines->map(function (InvoiceLineDTO $line) use ($invoiceDto) {
+                    return [
+                        'sku' => $line->sku,
+                        'description' => $line->description,
+                        'quantity' => $line->quantity,
+                        'unit_price_ex_vat' => $line->unitPriceExVat,
+                        'unit_vat_amount' => $line->unitVatAmount,
+                        'unit_price_inc_vat' => $line->unitPriceIncVat,
+                        'vat_rate' => $line->vatRate,
+                        'sub_total' => $line->subTotal,
+                        'vat_total' => $line->vatTotal,
+                        'total' => $line->total,
+                        'metadata' => json_encode($line->metadata),
+                    ];
+                })->toArray(),
+            );
+
+            $this->recalculateTotals();
+        });
+    }
+
+    public function scopeProvider(Builder $query, Provider $provider): Builder
+    {
+        return $query->where('provider', $provider);
+    }
+
+    public function recalculateTotals()
+    {
+        $this->total = Price::fromMinor($this->lines()->sum('total'));
+        $this->save();
+    }
+
     protected function casts(): array
     {
         return [
-            'status' => Status::class,
+            'status'   => Status::class,
             'provider' => Provider::class,
-            'seller' => SellerCast::class,
-            'buyer' => BuyerCast::class,
-            'total' => PriceCast::class,
+            'seller'   => SellerCast::class,
+            'buyer'    => BuyerCast::class,
+            'total'    => PriceCast::class,
         ];
     }
 }

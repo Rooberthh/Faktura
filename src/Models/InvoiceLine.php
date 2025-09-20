@@ -7,11 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Rooberthh\Faktura\Casts\PriceCast;
+use Rooberthh\Faktura\Support\Objects\Price;
 
 /**
- * @property int            $id
- * @property string         $description
- * @property int            $vat_rate
+ * @property int        $id
+ * @property string     $sku
+ * @property string     $description
+ * @property int        $quantity
+ * @property Price $unit_price_ex_vat
+ * @property Price $unit_vat_amount
+ * @property Price $unit_price_inc_vat
+ * @property int $vat_rate
+ * @property Price $sub_total
+ * @property Price $vat_total
+ * @property Price $total
  */
 class InvoiceLine extends Model
 {

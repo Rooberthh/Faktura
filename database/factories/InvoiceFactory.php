@@ -49,4 +49,13 @@ class InvoiceFactory extends Factory
             'metadata' => null,
         ];
     }
+
+    public function stripe(): self
+    {
+        return $this->state(
+            [
+                'provider' => Provider::STRIPE,
+            ],
+        );
+    }
 }

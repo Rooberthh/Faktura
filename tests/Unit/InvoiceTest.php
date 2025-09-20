@@ -1,10 +1,13 @@
 <?php
 
+use Illuminate\Support\Str;
 use Money\Money;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Database\Factories\InvoiceLineFactory;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Models\InvoiceLine;
+use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
+use Rooberthh\Faktura\Support\DataObjects\InvoiceLine as InvoiceLineDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
@@ -39,6 +42,56 @@ it('has a total', function () {
         ->toBe($invoice->total->amount())
         ->and($invoice->total->money())
         ->toBeInstanceOf(Money::class);
+});
+
+it('can sync itself from an InvoiceDTO', function () {
+    $uuid = Str::uuid()->toString();
+
+    $invoice = InvoiceFactory::new(['external_id' => $uuid])->stripe()->create();
+
+    $invoiceDTO = new InvoiceDTO(
+        externalId: $uuid,
+        provider: Provider::STRIPE,
+        status: Status::Paid,
+        total: Price::fromMinor(20000),
+        lines: collect(
+            [
+                new InvoiceLineDTO(
+                    sku: 'my-test-sku',
+                    description: 'My new item description',
+                    quantity: 2,
+                    unitPriceExVat: Price::fromMinor(7500),
+                    unitVatAmount: Price::fromMinor(2500),
+                    unitPriceIncVat: Price::fromMinor(10000),
+                    vatRate: 25,
+                    subTotal: Price::fromMinor(15000),
+                    vatTotal: Price::fromMinor(5000),
+                    total: Price::fromMinor(20000),
+                    metadata: [],
+                ),
+            ],
+        ),
+    );
+
+    $invoice->syncFromDto($invoiceDTO);
+
+    $invoice->refresh();
+
+    /** @var InvoiceLine $invoiceLine */
+    $invoiceLine = $invoice->lines()->first();
+
+    expect($invoice->external_id)->toBe($uuid)
+    ->and($invoice->total->amount())->toBe(20000)
+    ->and($invoice->status)->toBe(Status::Paid)
+    ->and($invoiceLine->description)->toBe('My new item description')
+    ->and($invoiceLine->quantity)->toBe(2)
+    ->and($invoiceLine->unit_price_ex_vat->amount())->toBe(7500)
+    ->and($invoiceLine->unit_vat_amount->amount())->toBe(2500)
+    ->and($invoiceLine->unit_price_inc_vat->amount())->toBe(10000)
+    ->and($invoiceLine->vat_rate)->toBe(25)
+    ->and($invoiceLine->sub_total->amount())->toBe(15000)
+    ->and($invoiceLine->vat_total->amount())->toBe(5000)
+    ->and($invoiceLine->total->amount())->toBe(20000);
 });
 
 it('can have a buyer', function () {
