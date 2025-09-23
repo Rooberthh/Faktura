@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-use Modules\Billing\Domain\Support\Objects\Seller;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
@@ -20,6 +19,8 @@ use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
+use Rooberthh\Faktura\Support\Objects\Seller;
+use Illuminate\Support\Collection;
 
 /**
  * @property int      $id
@@ -30,6 +31,7 @@ use Rooberthh\Faktura\Support\Objects\Price;
  * @property Price    $total
  * @property Provider $provider
  * @property string   $external_id
+ * @property Collection<InvoiceLine> $lines
  */
 class Invoice extends Model
 {

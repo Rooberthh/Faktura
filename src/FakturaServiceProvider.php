@@ -3,6 +3,7 @@
 namespace Rooberthh\Faktura;
 
 use Illuminate\Support\ServiceProvider;
+use Rooberthh\Faktura\Console\Commands\CreateInvoiceCommand;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Services\StripeGateway;
 
@@ -23,6 +24,12 @@ class FakturaServiceProvider extends ServiceProvider
                     __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations'),
                 ],
                 'faktura-migrations',
+            );
+
+            $this->commands(
+                [
+                    CreateInvoiceCommand::class,
+                ],
             );
         }
 

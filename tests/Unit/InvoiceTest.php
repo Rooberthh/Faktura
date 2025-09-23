@@ -110,7 +110,7 @@ it('can have a seller', function () {
     expect($invoice->seller)->toBeInstanceOf(Seller::class)->and($invoice->seller->name)->toBe($invoice->seller_name);
 });
 
-it('can have a provider', function () {
+it('can have an external provider', function () {
     $invoice = InvoiceFactory::new()
         ->has(InvoiceLineFactory::new(), 'lines')
         ->create();
