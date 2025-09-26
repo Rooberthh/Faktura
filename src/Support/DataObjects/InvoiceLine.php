@@ -38,7 +38,7 @@ readonly class InvoiceLine
         $vatRate = ($vatTotal->getAmount() / $subTotal->money()->getAmount()) * 100;
 
         return new self(
-            sku: $lineItem->id,
+            sku: $lineItem->metadata['sku'],
             description: $lineItem->description,
             quantity: $quantity,
             unitPriceExVat: Price::fromMinor((int) $unitPriceExVat->getAmount()),

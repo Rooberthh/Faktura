@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Services\InMemoryGateway;
-use Rooberthh\Faktura\Services\StripeGateway;
+use Rooberthh\Faktura\Services\Stripe\StripeGateway;
 use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine as InvoiceLineDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
@@ -20,17 +21,16 @@ use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
 use Rooberthh\Faktura\Support\Objects\Seller;
-use Illuminate\Support\Collection;
 
 /**
- * @property int      $id
- * @property string   $invoice_number
- * @property Status   $status
- * @property Buyer    $buyer
- * @property Seller   $seller
- * @property Price    $total
+ * @property int $id
+ * @property string $invoice_number
+ * @property Status $status
+ * @property Buyer $buyer
+ * @property Seller $seller
+ * @property Price $total
  * @property Provider $provider
- * @property string   $external_id
+ * @property string $external_id
  * @property Collection<InvoiceLine> $lines
  */
 class Invoice extends Model
@@ -68,9 +68,6 @@ class Invoice extends Model
         return config('faktura.table_prefix') . 'invoices';
     }
 
-    /**
-     * @return HasMany
-     */
     public function lines(): HasMany
     {
         return $this->hasMany(InvoiceLine::class);
@@ -81,7 +78,6 @@ class Invoice extends Model
         return match ($this->provider) {
             Provider::STRIPE => app(StripeGateway::class),
             Provider::IN_MEMORY => app(InMemoryGateway::class),
-            default => throw new \InvalidArgumentException("Unknown gateway: {$this->provider->value}"),
         };
     }
 
@@ -96,7 +92,7 @@ class Invoice extends Model
             // Delete and re-add lines since this is just a read-replica
             $this->lines()->delete();
             $this->lines()->createMany(
-                $invoiceDto->lines->map(function (InvoiceLineDTO $line) use ($invoiceDto) {
+                $invoiceDto->lines->map(function (InvoiceLineDTO $line) {
                     return [
                         'sku' => $line->sku,
                         'description' => $line->description,
@@ -122,7 +118,7 @@ class Invoice extends Model
         return $query->where('provider', $provider);
     }
 
-    public function recalculateTotals()
+    public function recalculateTotals(): void
     {
         $this->total = Price::fromMinor($this->lines()->sum('total'));
         $this->save();
@@ -131,11 +127,11 @@ class Invoice extends Model
     protected function casts(): array
     {
         return [
-            'status'   => Status::class,
+            'status' => Status::class,
             'provider' => Provider::class,
-            'seller'   => SellerCast::class,
-            'buyer'    => BuyerCast::class,
-            'total'    => PriceCast::class,
+            'seller' => SellerCast::class,
+            'buyer' => BuyerCast::class,
+            'total' => PriceCast::class,
         ];
     }
 }
