@@ -28,6 +28,7 @@ class StripeGateway implements GatewayContract
                     'description' => $line->description,
                     'quantity' => $line->quantity,
                     'unit_amount_decimal' => $line->unit_price_inc_vat->amount(),
+                    'tax_behavior' => 'inclusive',
                     'metadata' => [
                         'sku' => $line->sku,
                     ],
