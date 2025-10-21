@@ -141,8 +141,8 @@ class Invoice extends Model
                     'vat_total' => $line->vatTotal,
                     'total' => $line->total,
                     'metadata' => json_encode($line->metadata),
-                ]
-            )
+                ],
+            ),
         );
     }
 

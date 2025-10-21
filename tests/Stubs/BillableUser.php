@@ -3,7 +3,6 @@
 namespace Rooberthh\Faktura\Tests\Stubs;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Rooberthh\Faktura\Contracts\Billable;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 
