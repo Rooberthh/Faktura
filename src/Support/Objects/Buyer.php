@@ -12,6 +12,7 @@ final class Buyer
         public string $country,
         public string $orgNumber,
         public string $vatNumber,
+        public string $externalId,
     ) {
         //
     }
@@ -26,6 +27,7 @@ final class Buyer
             'country' => $this->country,
             'org_number' => $this->orgNumber,
             'vat_number' => $this->vatNumber,
+            'external_id' => $this->externalId,
         ];
     }
 }

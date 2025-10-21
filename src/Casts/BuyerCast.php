@@ -18,6 +18,7 @@ class BuyerCast implements CastsAttributes
             country: $attributes['billing_country'],
             orgNumber: $attributes['billing_org_number'],
             vatNumber: $attributes['billing_vat_number'],
+            externalId: $attributes['billing_external_id'],
         );
     }
 
@@ -39,6 +40,7 @@ class BuyerCast implements CastsAttributes
             'billing_country' => $value->country,
             'billing_org_number' => $value->orgNumber,
             'billing_vat_number' => $value->vatNumber,
+            'billing_external_id' => $value->externalId,
         ];
     }
 }

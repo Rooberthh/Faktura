@@ -3,6 +3,7 @@
 namespace Rooberthh\Faktura\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
@@ -34,6 +35,7 @@ class InvoiceFactory extends Factory
             'billing_country' => $this->faker->country(),
             'billing_org_number' => $this->faker->bankAccountNumber(),
             'billing_vat_number' => $this->faker->bankAccountNumber(),
+            'billing_external_id' => Str::uuid()->toString(),
             'seller_name' => $this->faker->name(),
             'seller_address' => $this->faker->address(),
             'seller_postal_code' => $this->faker->postcode(),

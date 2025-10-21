@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->string('billing_country');
             $table->string('billing_org_number')->nullable();
             $table->string('billing_vat_number')->nullable();
+            $table->string('billing_external_id')->nullable();
             $table->string('seller_name');
             $table->string('seller_address');
             $table->string('seller_postal_code');
