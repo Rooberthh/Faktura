@@ -15,6 +15,12 @@ abstract class TestCase extends BaseTestCase
         ];
     }
 
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadLaravelMigrations();
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+    }
+
     /**
      * @return void
      * @param mixed $app

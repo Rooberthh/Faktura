@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rooberthh\Faktura\Casts\BuyerCast;
@@ -24,7 +25,7 @@ use Rooberthh\Faktura\Support\Objects\Seller;
 
 /**
  * @property int $id
- * @property string $invoice_number
+ * @property string $number
  * @property Status $status
  * @property Buyer $buyer
  * @property Seller $seller
@@ -58,6 +59,7 @@ class Invoice extends Model
         'seller_vat_number',
         'seller_iban',
         'seller_payment_reference',
+        'total',
         'provider',
         'external_id',
         'metadata',
@@ -71,6 +73,11 @@ class Invoice extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(InvoiceLine::class);
+    }
+
+    public function billable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function gateway(): GatewayContract
@@ -116,6 +123,27 @@ class Invoice extends Model
     public function scopeProvider(Builder $query, Provider $provider): Builder
     {
         return $query->where('provider', $provider);
+    }
+
+    public function addLine(InvoiceLineDTO $line)
+    {
+        $this->lines->push(
+            new InvoiceLine(
+                [
+                    'sku' => $line->sku,
+                    'description' => $line->description,
+                    'quantity' => $line->quantity,
+                    'unit_price_ex_vat' => $line->unitPriceExVat,
+                    'unit_vat_amount' => $line->unitVatAmount,
+                    'unit_price_inc_vat' => $line->unitPriceIncVat,
+                    'vat_rate' => $line->vatRate,
+                    'sub_total' => $line->subTotal,
+                    'vat_total' => $line->vatTotal,
+                    'total' => $line->total,
+                    'metadata' => json_encode($line->metadata),
+                ]
+            )
+        );
     }
 
     public function recalculateTotals(): void
