@@ -2,7 +2,6 @@
 
 namespace Rooberthh\Faktura\Actions;
 
-use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Models\Invoice;
 
 class InitializeInvoiceOnProviderAction

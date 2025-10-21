@@ -25,7 +25,7 @@ class InitializeInvoiceOnProviderCommand extends Command
 
         $provider = $this->choice(
             'Which provider do you want to use?',
-            array_map(fn ($case) => $case->value, Provider::cases())
+            array_map(fn($case) => $case->value, Provider::cases()),
         );
 
         $invoice->provider = $provider;
