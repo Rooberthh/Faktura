@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Queue\Queue;
 use Illuminate\Support\Facades\Bus;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
