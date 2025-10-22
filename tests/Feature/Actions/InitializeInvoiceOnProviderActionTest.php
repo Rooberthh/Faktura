@@ -18,5 +18,5 @@ it('can initialize a new invoice', function () {
 
     expect($invoice->provider)->toBe(Provider::IN_MEMORY)->and($invoice->external_id)->not->toBeNull();
 
-    $gateway->assertExists($invoice->id);
+    $gateway->assertExists($invoice->external_id);
 });

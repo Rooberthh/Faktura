@@ -3,8 +3,8 @@
 use Illuminate\Support\Facades\Bus;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
-use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Models\Invoice;
+use Rooberthh\Faktura\Support\Enums\Status;
 
 it('dispatches a job that handles the syncing of an invoice for the invoice-paid', function () {
     Config::set('faktura.stripe.webhook_secret', 'whsec_test_secret');
@@ -36,7 +36,7 @@ it('dispatches a job that handles the syncing of an invoice for the invoice-paid
         ->assertStatus(200);
 
     Bus::assertDispatched(SyncInvoiceJob::class, function (SyncInvoiceJob $job) use ($invoice) {
-        return $job->invoiceId === $invoice->id && $job->invoiceDTO->externalId === $invoice->external_id;
+        return $job->invoiceId === $invoice->id;
     });
 });
 
@@ -106,9 +106,9 @@ if (! function_exists('generateStripeSignature')) {
     /**
      * Generate a Stripe webhook signature for testing.
      *
-     * @param string $payload Raw JSON payload
-     * @param string $secret Webhook signing secret
-     * @param int|null $timestamp Optional timestamp (defaults to current time)
+     * @param  string  $payload  Raw JSON payload
+     * @param  string  $secret  Webhook signing secret
+     * @param  int|null  $timestamp  Optional timestamp (defaults to current time)
      * @return string Stripe-Signature header value
      */
     function generateStripeSignature(string $payload, string $secret, ?int $timestamp = null): string

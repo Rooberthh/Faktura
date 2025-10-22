@@ -7,7 +7,6 @@ use Illuminate\Routing\Controller;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Services\Stripe\Event;
-use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Exception\UnexpectedValueException;
@@ -30,19 +29,17 @@ class StripeCallbackController extends Controller
             $internalEvent = Event::from($event->type);
 
             if ($internalEvent === Event::INVOICE_PAID) {
-                $invoiceDTO = InvoiceDTO::fromStripeInvoice($event->data->object);
-
                 /** @var Invoice|null $invoice */
                 $invoice = Invoice::query()
                     ->provider(Provider::STRIPE)
-                    ->where('external_id', $invoiceDTO->externalId)
+                    ->where('external_id', $event->data->object->id)
                     ->first();
 
                 if (! $invoice) {
                     return response('Invalid invoice_id', 400);
                 }
 
-                dispatch(new SyncInvoiceJob($invoice->id, $invoiceDTO));
+                dispatch(new SyncInvoiceJob($invoice->id));
             }
         } catch (SignatureVerificationException|UnexpectedValueException $e) {
             report($e);

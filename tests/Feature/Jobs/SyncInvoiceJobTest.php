@@ -3,22 +3,19 @@
 use Illuminate\Support\Str;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
+use Rooberthh\Faktura\Services\InMemoryGateway;
 use Rooberthh\Faktura\Support\DataObjects\Invoice;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine;
+use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Support\Objects\Price;
+use Rooberthh\Faktura\Tests\Stubs\FakeInMemoryGateway;
 
 it('can sync an invoice of an invoiceDTO', function () {
-    $externalId = Str::uuid()->toString();
+    $gateway = new FakeInMemoryGateway();
+    $this->app->instance(InMemoryGateway::class, $gateway);
 
-    $invoice = InvoiceFactory::new()
-        ->stripe()
-        ->create(
-            [
-                'external_id' => $externalId,
-            ],
-        );
-
+    // Push our invoice to the faked gateway
     $lines = [
         new InvoiceLine(
             sku: 'test-sku',
@@ -48,17 +45,28 @@ it('can sync an invoice of an invoiceDTO', function () {
         ),
     ];
 
-    $invoiceDTO = new Invoice(
+    $externalId = Str::uuid()->toString();
+
+    $gateway->invoices[] = new Invoice(
         externalId: $externalId,
-        provider: $invoice->provider,
+        provider: Provider::IN_MEMORY,
         status: Status::Paid,
         total: Price::fromMinor(300),
         lines: collect($lines),
     );
 
+    $invoice = InvoiceFactory::new()
+        ->stripe()
+        ->create(
+            [
+                'provider' => Provider::IN_MEMORY,
+                'external_id' => $externalId,
+            ],
+        );
+
     expect($invoice->lines)->toBeEmpty()->and($invoice->status)->toBe(Status::Draft);
 
-    $job = new SyncInvoiceJob($invoice->id, $invoiceDTO);
+    $job = new SyncInvoiceJob($invoice->id);
     $job->handle();
 
     $invoice->refresh();

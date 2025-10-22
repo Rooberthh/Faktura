@@ -5,6 +5,7 @@ namespace Rooberthh\Faktura\Services\Stripe;
 use Exception;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Models\Invoice;
+use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Stripe\StripeClient;
 
@@ -13,6 +14,13 @@ class StripeGateway implements GatewayContract
     public function __construct(public StripeClient $client)
     {
         //
+    }
+
+    public function get(string $externalId): InvoiceDTO
+    {
+        $stripeInvoice = $this->client->invoices->retrieve($externalId);
+
+        return InvoiceDTO::fromStripeInvoice($stripeInvoice);
     }
 
     public function createInvoice(Invoice $invoice)
