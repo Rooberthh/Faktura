@@ -4,6 +4,7 @@ namespace Rooberthh\Faktura\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Services\Stripe\Event;
 use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
@@ -41,7 +42,7 @@ class StripeCallbackController extends Controller
                     return response('Invalid invoice_id', 400);
                 }
 
-                $invoice->syncFromDto($invoiceDTO);
+                dispatch(new SyncInvoiceJob($invoice->id, $invoiceDTO));
             }
         } catch (SignatureVerificationException|UnexpectedValueException $e) {
             report($e);

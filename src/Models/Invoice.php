@@ -117,7 +117,7 @@ class Invoice extends Model
             );
 
             $this->recalculateTotals();
-        });
+        }, 3);
     }
 
     public function scopeProvider(Builder $query, Provider $provider): Builder

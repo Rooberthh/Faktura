@@ -1,11 +1,15 @@
 <?php
 
+use Illuminate\Queue\Queue;
+use Illuminate\Support\Facades\Bus;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
+use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
 use Rooberthh\Faktura\Support\Enums\Status;
 use Rooberthh\Faktura\Models\Invoice;
 
-it('can sync an invoice from the invoice.paid event from stripe', function () {
+it('dispatches a job that handles the syncing of an invoice for the invoice-paid', function () {
     Config::set('faktura.stripe.webhook_secret', 'whsec_test_secret');
+    Bus::fake();
 
     // Load the fixture for checkout success.
     $payload = $this->loadFixture('stripe-invoice-paid');
@@ -18,8 +22,6 @@ it('can sync an invoice from the invoice.paid event from stripe', function () {
                 'external_id' => data_get($payload, 'data.object.id'),
             ],
         );
-
-    expect($invoice->lines)->toBeEmpty()->and($invoice->status)->toBe(Status::Draft);
 
     $stripeSignature = generateStripeSignature(json_encode($payload), config('faktura.stripe.webhook_secret'));
 
@@ -34,11 +36,9 @@ it('can sync an invoice from the invoice.paid event from stripe', function () {
         )
         ->assertStatus(200);
 
-    $invoice->refresh();
-
-    expect($invoice->status)->toBe(Status::Paid)
-        ->and($invoice->lines)->not->toBeEmpty()
-        ->and($invoice->total->amount())->toBe(data_get($payload, 'data.object.total'));
+    Bus::assertDispatched(SyncInvoiceJob::class, function (SyncInvoiceJob $job) use ($invoice) {
+        return $job->invoiceId === $invoice->id && $job->invoiceDTO->externalId === $invoice->external_id;
+    });
 });
 
 it('does not process webhooks with invalid secret', function () {
