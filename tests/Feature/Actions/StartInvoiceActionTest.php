@@ -4,9 +4,10 @@ use Rooberthh\Faktura\Actions\StartInvoiceAction;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine;
 use Rooberthh\Faktura\Support\Objects\Price;
 use Rooberthh\Faktura\Tests\Stubs\BillableUser;
+use Rooberthh\Faktura\Tests\Stubs\FakeBillableUser;
 
 it('can start an invoice', function () {
-    $billable = new BillableUser();
+    $billable = new FakeBillableUser();
     $buyer = $billable->toBuyer();
 
     $lines = [

@@ -36,6 +36,6 @@ class StartInvoiceAction
 
         $invoice->recalculateTotals();
 
-        return $invoice->refresh();
+        return $invoice;
     }
 }

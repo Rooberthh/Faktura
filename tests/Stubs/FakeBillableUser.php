@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Rooberthh\Faktura\Contracts\Billable;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 
-class BillableUser extends Model implements Billable
+class FakeBillableUser extends Model implements Billable
 {
     protected $table = 'billable_users';
 
