@@ -2,7 +2,6 @@
 
 namespace Rooberthh\Faktura\Console\Commands;
 
-use DomainException;
 use Illuminate\Console\Command;
 use Rooberthh\Faktura\Jobs\InitializeInvoiceOnProviderJob;
 use Rooberthh\Faktura\Models\Invoice;

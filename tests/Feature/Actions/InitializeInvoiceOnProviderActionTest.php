@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Str;
 use Rooberthh\Faktura\Actions\InitializeInvoiceOnProviderAction;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
@@ -27,11 +26,11 @@ it('throws an exception if the invoice is already synced to an external provider
     $invoice = InvoiceFactory::new()->create(
         [
             'provider' => Provider::IN_MEMORY,
-            'external_id' => Str::uuid()->toString()
-        ]
+            'external_id' => Str::uuid()->toString(),
+        ],
     );
 
-    expect(fn () => (new InitializeInvoiceOnProviderAction())->execute($invoice))->toThrow(DomainException::class)
+    expect(fn() => (new InitializeInvoiceOnProviderAction())->execute($invoice))->toThrow(DomainException::class)
         ->and($invoice->provider)->toBe(Provider::IN_MEMORY)
         ->and($invoice->external_id)->toBe($invoice->external_id);
 });
