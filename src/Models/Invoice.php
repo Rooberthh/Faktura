@@ -25,16 +25,16 @@ use Rooberthh\Faktura\Support\Objects\Price;
 use Rooberthh\Faktura\Support\Objects\Seller;
 
 /**
- * @property int $id
- * @property string $number
- * @property Status $status
- * @property Buyer $buyer
- * @property Seller $seller
- * @property Price $total
- * @property Provider $provider
- * @property string $external_id
+ * @property int                          $id
+ * @property string                       $number
+ * @property Status                       $status
+ * @property Buyer                        $buyer
+ * @property Seller                       $seller
+ * @property Price                        $total
+ * @property Provider                     $provider
+ * @property string                       $external_id
  * @property Collection<int, InvoiceLine> $lines
- * @property Model $billable
+ * @property Model                        $billable
  * @method static InvoiceBuilder query()
  */
 class Invoice extends Model
@@ -74,12 +74,6 @@ class Invoice extends Model
         return config('faktura.table_prefix') . 'invoices';
     }
 
-    /** @return HasMany<InvoiceLine, $this> */
-    public function lines(): HasMany
-    {
-        return $this->hasMany(InvoiceLine::class);
-    }
-
     /** @return MorphTo<Model, $this> */
     public function billable(): MorphTo
     {
@@ -99,17 +93,17 @@ class Invoice extends Model
         $this->lines->push(
             new InvoiceLine(
                 [
-                    'sku' => $line->sku,
-                    'description' => $line->description,
-                    'quantity' => $line->quantity,
-                    'unit_price_ex_vat' => $line->unitPriceExVat,
-                    'unit_vat_amount' => $line->unitVatAmount,
+                    'sku'                => $line->sku,
+                    'description'        => $line->description,
+                    'quantity'           => $line->quantity,
+                    'unit_price_ex_vat'  => $line->unitPriceExVat,
+                    'unit_vat_amount'    => $line->unitVatAmount,
                     'unit_price_inc_vat' => $line->unitPriceIncVat,
-                    'vat_rate' => $line->vatRate,
-                    'sub_total' => $line->subTotal,
-                    'vat_total' => $line->vatTotal,
-                    'total' => $line->total,
-                    'metadata' => json_encode($line->metadata),
+                    'vat_rate'           => $line->vatRate,
+                    'sub_total'          => $line->subTotal,
+                    'vat_total'          => $line->vatTotal,
+                    'total'              => $line->total,
+                    'metadata'           => json_encode($line->metadata),
                 ],
             ),
         );
@@ -128,17 +122,17 @@ class Invoice extends Model
             $this->lines()->createMany(
                 $invoiceDto->lines->map(function (InvoiceLineDTO $line) {
                     return [
-                        'sku' => $line->sku,
-                        'description' => $line->description,
-                        'quantity' => $line->quantity,
-                        'unit_price_ex_vat' => $line->unitPriceExVat,
-                        'unit_vat_amount' => $line->unitVatAmount,
+                        'sku'                => $line->sku,
+                        'description'        => $line->description,
+                        'quantity'           => $line->quantity,
+                        'unit_price_ex_vat'  => $line->unitPriceExVat,
+                        'unit_vat_amount'    => $line->unitVatAmount,
                         'unit_price_inc_vat' => $line->unitPriceIncVat,
-                        'vat_rate' => $line->vatRate,
-                        'sub_total' => $line->subTotal,
-                        'vat_total' => $line->vatTotal,
-                        'total' => $line->total,
-                        'metadata' => json_encode($line->metadata),
+                        'vat_rate'           => $line->vatRate,
+                        'sub_total'          => $line->subTotal,
+                        'vat_total'          => $line->vatTotal,
+                        'total'              => $line->total,
+                        'metadata'           => json_encode($line->metadata),
                     ];
                 })->toArray(),
             );
@@ -147,35 +141,16 @@ class Invoice extends Model
         }, 3);
     }
 
+    /** @return HasMany<InvoiceLine, $this> */
+    public function lines(): HasMany
+    {
+        return $this->hasMany(InvoiceLine::class);
+    }
+
     public function recalculateTotals(): void
     {
         $this->total = Price::fromMinor($this->lines()->sum('total'));
         $this->save();
-    }
-
-    public function toDto(): InvoiceDTO
-    {
-        return new InvoiceDTO(
-            externalId: $this->external_id,
-            provider: $this->provider,
-            status: $this->status,
-            total: $this->total,
-            lines: $this->lines->map(function (InvoiceLine $line) {
-                return new InvoiceLineDTO(
-                    sku: $line->sku,
-                    description: $line->description,
-                    quantity: $line->quantity,
-                    unitPriceExVat: $line->unit_price_ex_vat,
-                    unitVatAmount: $line->unit_vat_amount,
-                    unitPriceIncVat: $line->unit_price_inc_vat,
-                    vatRate: $line->vat_rate,
-                    subTotal: $line->sub_total,
-                    vatTotal: $line->vat_total,
-                    total: $line->total,
-                    metadata: [],
-                );
-            }),
-        );
     }
 
     public function newEloquentBuilder($query)
@@ -186,11 +161,11 @@ class Invoice extends Model
     protected function casts(): array
     {
         return [
-            'status' => Status::class,
+            'status'   => Status::class,
             'provider' => Provider::class,
-            'seller' => SellerCast::class,
-            'buyer' => BuyerCast::class,
-            'total' => PriceCast::class,
+            'seller'   => SellerCast::class,
+            'buyer'    => BuyerCast::class,
+            'total'    => PriceCast::class,
         ];
     }
 }

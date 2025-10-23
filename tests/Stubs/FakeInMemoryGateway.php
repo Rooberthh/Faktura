@@ -2,6 +2,7 @@
 
 namespace Rooberthh\Faktura\Tests\Stubs;
 
+use AssertionError;
 use Illuminate\Support\Str;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Models\Invoice;
@@ -10,7 +11,7 @@ use Rooberthh\Faktura\Support\Enums\Provider;
 
 class FakeInMemoryGateway implements GatewayContract
 {
-    /** @var InvoiceDTO[]  */
+    /** @var InvoiceDTO[] */
     public array $invoices = [];
 
     public function get(string $externalId): InvoiceDTO
@@ -24,28 +25,27 @@ class FakeInMemoryGateway implements GatewayContract
         $invoice->provider = Provider::IN_MEMORY;
         $invoice->save();
 
-        $invoiceDTO = $invoice->toDto();
+        $invoiceDTO = InvoiceDTO::fromInvoice($invoice);
 
         $this->invoices[] = $invoiceDTO;
 
         return $invoiceDTO;
     }
 
-    public function findInvoiceById(string $invoiceId): ?InvoiceDTO
+    public function assertExists(string $invoiceId): void
     {
-        return collect($this->invoices)->first(fn(InvoiceDTO $invoice) => $invoice->externalId === $invoiceId);
+        if (!$this->exists($invoiceId)) {
+            throw new AssertionError("Expected invoice [{$invoiceId}] to exist in InMemoryGateway.");
+        }
     }
-
 
     public function exists(string $invoiceId): bool
     {
         return (bool) $this->findInvoiceById($invoiceId);
     }
 
-    public function assertExists(string $invoiceId): void
+    public function findInvoiceById(string $invoiceId): ?InvoiceDTO
     {
-        if (! $this->exists($invoiceId)) {
-            throw new \AssertionError("Expected invoice [{$invoiceId}] to exist in InMemoryGateway.");
-        }
+        return collect($this->invoices)->first(fn(InvoiceDTO $invoice) => $invoice->externalId === $invoiceId);
     }
 }
