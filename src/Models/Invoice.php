@@ -13,6 +13,7 @@ use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
 use Rooberthh\Faktura\Contracts\GatewayContract;
+use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Services\InMemoryGateway;
 use Rooberthh\Faktura\Services\Stripe\StripeGateway;
 use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
@@ -32,10 +33,13 @@ use Rooberthh\Faktura\Support\Objects\Seller;
  * @property Price $total
  * @property Provider $provider
  * @property string $external_id
- * @property Collection<InvoiceLine> $lines
+ * @property Collection<int, InvoiceLine> $lines
+ * @property Model $billable
+ * @method Builder<Invoice> provider()
  */
 class Invoice extends Model
 {
+    /** @use HasFactory<InvoiceFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -70,11 +74,13 @@ class Invoice extends Model
         return config('faktura.table_prefix') . 'invoices';
     }
 
+    /** @return HasMany<InvoiceLine, $this> */
     public function lines(): HasMany
     {
         return $this->hasMany(InvoiceLine::class);
     }
 
+    /** @return MorphTo<Model, $this> */
     public function billable(): MorphTo
     {
         return $this->morphTo();
@@ -88,7 +94,7 @@ class Invoice extends Model
         };
     }
 
-    public function syncFromDto(InvoiceDTO $invoiceDto)
+    public function syncFromDto(InvoiceDTO $invoiceDto): void
     {
         DB::transaction(function () use ($invoiceDto) {
             $this->status = $invoiceDto->status;
@@ -120,12 +126,17 @@ class Invoice extends Model
         }, 3);
     }
 
+    /**
+     * @param  Builder<Invoice> $query
+     * @param Provider $provider
+     * @return Builder<Invoice>
+     */
     public function scopeProvider(Builder $query, Provider $provider): Builder
     {
         return $query->where('provider', $provider);
     }
 
-    public function addLine(InvoiceLineDTO $line)
+    public function addLine(InvoiceLineDTO $line): void
     {
         $this->lines->push(
             new InvoiceLine(
@@ -150,6 +161,31 @@ class Invoice extends Model
     {
         $this->total = Price::fromMinor($this->lines()->sum('total'));
         $this->save();
+    }
+
+    public function toDto(): InvoiceDTO
+    {
+        return new InvoiceDTO(
+            externalId: $this->external_id,
+            provider: $this->provider,
+            status: $this->status,
+            total: $this->total,
+            lines: $this->lines->map(function (InvoiceLine $line) {
+                return new InvoiceLineDTO(
+                    sku: $line->sku,
+                    description: $line->description,
+                    quantity: $line->quantity,
+                    unitPriceExVat: $line->unit_price_ex_vat,
+                    unitVatAmount: $line->unit_vat_amount,
+                    unitPriceIncVat: $line->unit_price_inc_vat,
+                    vatRate: $line->vat_rate,
+                    subTotal: $line->sub_total,
+                    vatTotal: $line->vat_total,
+                    total: $line->total,
+                    metadata: [],
+                );
+            }),
+        );
     }
 
     protected function casts(): array

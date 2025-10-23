@@ -3,12 +3,16 @@
 namespace Rooberthh\Faktura\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Rooberthh\Faktura\Support\Objects\Seller;
 
+/**
+ * @implements CastsAttributes<Seller, array<string, mixed>|null>
+ */
 class SellerCast implements CastsAttributes
 {
-    public function get($model, string $key, $value, array $attributes): Seller
+    public function get(Model $model, string $key, mixed $value, array $attributes): Seller
     {
         return new Seller(
             name: $attributes['seller_name'],
@@ -22,14 +26,21 @@ class SellerCast implements CastsAttributes
         );
     }
 
-    public function set($model, string $key, $value, array $attributes): null|array
+    /**
+     * @return null|array{seller_name: string, seller_address: string, seller_city: string, seller_postal_code: string, seller_country:string, seller_org_number: string, seller_vat_number: string, seller_iban: string}
+     * @param Model $model
+     * @param string $key
+     * @param mixed $value
+     * @param array $attributes
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?array
     {
         if (is_null($value)) {
             return null; // Handle null values
         }
 
         if (! $value instanceof Seller) {
-            throw new InvalidArgumentException("Invalid seller data");
+            throw new InvalidArgumentException('Invalid seller data');
         }
 
         return [

@@ -7,6 +7,19 @@ use Stripe\InvoiceLineItem;
 
 readonly class InvoiceLine
 {
+    /**
+     * @param  array<mixed, mixed> $metadata
+     * @param string $sku
+     * @param string $description
+     * @param int $quantity
+     * @param Price $unitPriceExVat
+     * @param Price $unitVatAmount
+     * @param Price $unitPriceIncVat
+     * @param int $vatRate
+     * @param Price $subTotal
+     * @param Price $vatTotal
+     * @param Price $total
+     */
     public function __construct(
         public string $sku,
         public string $description,

@@ -41,6 +41,8 @@ class StripeCallbackController extends Controller
 
                 dispatch(new SyncInvoiceJob($invoice->id));
             }
+
+            return response('Ok', 200);
         } catch (SignatureVerificationException|UnexpectedValueException $e) {
             report($e);
 

@@ -7,7 +7,7 @@ use Rooberthh\Faktura\Models\Invoice;
 
 class InitializeInvoiceOnProviderAction
 {
-    public function execute(Invoice $invoice)
+    public function execute(Invoice $invoice): Invoice
     {
         if ($invoice->external_id) {
             throw new DomainException('Invoice already have an external id and cannot be created on another provider.');
@@ -15,5 +15,7 @@ class InitializeInvoiceOnProviderAction
 
         $gateway = $invoice->gateway();
         $gateway->createInvoice($invoice);
+
+        return $invoice;
     }
 }

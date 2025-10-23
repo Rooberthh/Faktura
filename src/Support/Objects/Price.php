@@ -3,10 +3,10 @@
 namespace Rooberthh\Faktura\Support\Objects;
 
 use Money\Currencies\ISOCurrencies;
+use Money\Currency;
 use Money\Formatter\IntlMoneyFormatter;
 use Money\Money;
 use NumberFormatter;
-use Money\Currency;
 
 final class Price
 {

@@ -5,11 +5,11 @@ namespace Rooberthh\Faktura;
 use Illuminate\Support\ServiceProvider;
 use Rooberthh\Faktura\Console\Commands\CreateInvoiceCommand;
 use Rooberthh\Faktura\Contracts\GatewayContract;
-use Rooberthh\Faktura\Services\StripeGateway;
+use Rooberthh\Faktura\Services\Stripe\StripeGateway;
 
 class FakturaServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes(

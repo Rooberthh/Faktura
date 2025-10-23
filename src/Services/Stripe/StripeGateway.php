@@ -2,7 +2,6 @@
 
 namespace Rooberthh\Faktura\Services\Stripe;
 
-use Exception;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
@@ -23,7 +22,7 @@ class StripeGateway implements GatewayContract
         return InvoiceDTO::fromStripeInvoice($stripeInvoice);
     }
 
-    public function createInvoice(Invoice $invoice)
+    public function createInvoice(Invoice $invoice): InvoiceDTO
     {
         $stripeInvoice = $this->client->invoices->create($this->getInvoicePayload($invoice));
 
@@ -47,18 +46,19 @@ class StripeGateway implements GatewayContract
         $invoice->external_id = $stripeInvoice->id;
         $invoice->provider = Provider::STRIPE;
         $invoice->save();
+
+        return $invoice->toDto();
     }
 
+    /**
+     * @return array{customer: string, auto_advance: boolean}
+     * @param Invoice $invoice
+     */
     protected function getInvoicePayload(Invoice $invoice): array
     {
         return [
             'customer' => 'cus_SF5PGh60JEglp4',
             'auto_advance' => false,
         ];
-    }
-
-    public function handleCallback()
-    {
-        throw new Exception('Not implemented');
     }
 }

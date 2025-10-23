@@ -14,11 +14,6 @@ class InMemoryGateway implements GatewayContract
         throw new Exception('Not implemented');
     }
 
-    public function handleCallback()
-    {
-        throw new Exception('Not implemented');
-    }
-
     public function get(string $externalId): InvoiceDTO
     {
         throw new Exception('Not implemented');

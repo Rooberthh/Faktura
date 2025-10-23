@@ -17,6 +17,9 @@ final class Seller
         //
     }
 
+    /**
+     * @return array{name: string, address: string, city: string, postal_code: string, country: string, org_number: string, vat_number: string, iban: string }
+     * */
     public function toArray(): array
     {
         return [

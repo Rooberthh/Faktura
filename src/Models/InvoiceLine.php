@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Rooberthh\Faktura\Casts\PriceCast;
+use Rooberthh\Faktura\Database\Factories\InvoiceLineFactory;
 use Rooberthh\Faktura\Support\Objects\Price;
 
 /**
@@ -21,9 +22,12 @@ use Rooberthh\Faktura\Support\Objects\Price;
  * @property Price $sub_total
  * @property Price $vat_total
  * @property Price $total
+ * @property Invoice $invoice
+ * @property Model $invoiceable
  */
 class InvoiceLine extends Model
 {
+    /** @use HasFactory<InvoiceLineFactory>  */
     use HasFactory;
 
     protected $fillable = [
@@ -48,7 +52,7 @@ class InvoiceLine extends Model
     /**
      * Get the invoice.
      *
-     * @return BelongsTo
+     * @return BelongsTo<Invoice, $this>
      */
     public function invoice(): BelongsTo
     {
@@ -58,7 +62,7 @@ class InvoiceLine extends Model
     /**
      * Get the invoiceable item.
      *
-     * @return MorphTo
+     * @return MorphTo<Model, $this>
      */
     public function invoiceable(): MorphTo
     {

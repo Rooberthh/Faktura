@@ -10,6 +10,4 @@ interface GatewayContract
     public function get(string $externalId): InvoiceDTO;
 
     public function createInvoice(Invoice $invoice): InvoiceDTO;
-
-    public function handleCallback();
 }
