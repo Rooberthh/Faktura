@@ -41,7 +41,7 @@ readonly class InvoiceLine
         $quantity = $lineItem->quantity;
 
         $total = Price::fromMinor($lineItem->amount);
-        $subTotal = Price::fromMinor($lineItem->amount_excluding_tax);
+        $subTotal = Price::fromMinor($lineItem['amount_excluding_tax']);
         $vatTotal = $total->money()->subtract($subTotal->money());
 
         $unitPriceExVat = $subTotal->money()->divide($quantity);

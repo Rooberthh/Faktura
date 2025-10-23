@@ -23,10 +23,6 @@ class PriceCast implements CastsAttributes
 
     /**
      * @return array<string, int>
-     * @param Model $model
-     * @param string $key
-     * @param mixed $value
-     * @param array $attributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): array
     {

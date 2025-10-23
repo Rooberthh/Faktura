@@ -2,13 +2,13 @@
 
 namespace Rooberthh\Faktura\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Rooberthh\Faktura\Builders\InvoiceBuilder;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
@@ -35,6 +35,7 @@ use Rooberthh\Faktura\Support\Objects\Seller;
  * @property string $external_id
  * @property Collection<int, InvoiceLine> $lines
  * @property Model $billable
+ * @method static InvoiceBuilder query()
  */
 class Invoice extends Model
 {
@@ -93,6 +94,27 @@ class Invoice extends Model
         };
     }
 
+    public function addLine(InvoiceLineDTO $line): void
+    {
+        $this->lines->push(
+            new InvoiceLine(
+                [
+                    'sku' => $line->sku,
+                    'description' => $line->description,
+                    'quantity' => $line->quantity,
+                    'unit_price_ex_vat' => $line->unitPriceExVat,
+                    'unit_vat_amount' => $line->unitVatAmount,
+                    'unit_price_inc_vat' => $line->unitPriceIncVat,
+                    'vat_rate' => $line->vatRate,
+                    'sub_total' => $line->subTotal,
+                    'vat_total' => $line->vatTotal,
+                    'total' => $line->total,
+                    'metadata' => json_encode($line->metadata),
+                ],
+            ),
+        );
+    }
+
     public function syncFromDto(InvoiceDTO $invoiceDto): void
     {
         DB::transaction(function () use ($invoiceDto) {
@@ -125,37 +147,6 @@ class Invoice extends Model
         }, 3);
     }
 
-    /**
-     * @param  Builder<Invoice> $query
-     * @param Provider $provider
-     * @return Builder<Invoice>
-     */
-    public function scopeProvider(Builder $query, Provider $provider): Builder
-    {
-        return $query->where('provider', $provider);
-    }
-
-    public function addLine(InvoiceLineDTO $line): void
-    {
-        $this->lines->push(
-            new InvoiceLine(
-                [
-                    'sku' => $line->sku,
-                    'description' => $line->description,
-                    'quantity' => $line->quantity,
-                    'unit_price_ex_vat' => $line->unitPriceExVat,
-                    'unit_vat_amount' => $line->unitVatAmount,
-                    'unit_price_inc_vat' => $line->unitPriceIncVat,
-                    'vat_rate' => $line->vatRate,
-                    'sub_total' => $line->subTotal,
-                    'vat_total' => $line->vatTotal,
-                    'total' => $line->total,
-                    'metadata' => json_encode($line->metadata),
-                ],
-            ),
-        );
-    }
-
     public function recalculateTotals(): void
     {
         $this->total = Price::fromMinor($this->lines()->sum('total'));
@@ -185,6 +176,11 @@ class Invoice extends Model
                 );
             }),
         );
+    }
+
+    public function newEloquentBuilder($query)
+    {
+        return new InvoiceBuilder($query);
     }
 
     protected function casts(): array

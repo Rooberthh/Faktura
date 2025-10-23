@@ -28,10 +28,6 @@ class SellerCast implements CastsAttributes
 
     /**
      * @return null|array{seller_name: string, seller_address: string, seller_city: string, seller_postal_code: string, seller_country:string, seller_org_number: string, seller_vat_number: string, seller_iban: string}
-     * @param Model $model
-     * @param string $key
-     * @param mixed $value
-     * @param array $attributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?array
     {
