@@ -3,6 +3,7 @@
 namespace Rooberthh\Faktura\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
 use Rooberthh\Faktura\Models\Invoice;
@@ -14,7 +15,7 @@ use Stripe\Webhook;
 
 class StripeCallbackController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');

@@ -35,7 +35,6 @@ use Rooberthh\Faktura\Support\Objects\Seller;
  * @property string $external_id
  * @property Collection<int, InvoiceLine> $lines
  * @property Model $billable
- * @method Builder<Invoice> provider()
  */
 class Invoice extends Model
 {
