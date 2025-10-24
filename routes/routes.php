@@ -1,6 +1,6 @@
 <?php
 
-
+use Illuminate\Support\Facades\Route;
 use Rooberthh\Faktura\Http\Controllers\StripeCallbackController;
 
 Route::prefix('faktura')->name('faktura::')->group(function () {
