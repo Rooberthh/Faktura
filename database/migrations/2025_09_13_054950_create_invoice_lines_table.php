@@ -13,7 +13,6 @@ return new class extends Migration {
         Schema::create(config('faktura.table_prefix') . 'invoice_lines', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->constrained(config('faktura.table_prefix') . 'invoices')->cascadeOnDelete();
-            $table->nullableMorphs('invoiceable');
             $table->string('sku');
             $table->string('description');
             $table->unsignedBigInteger('quantity');

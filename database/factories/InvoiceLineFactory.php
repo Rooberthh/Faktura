@@ -33,8 +33,6 @@ class InvoiceLineFactory extends Factory
 
         return [
             'invoice_id' => InvoiceFactory::new(),
-            'invoiceable_id' => null,
-            'invoiceable_type' => null,
             'sku' => $this->faker->word(),
             'description' => $this->faker->sentence(),
             'quantity' => $quantity,

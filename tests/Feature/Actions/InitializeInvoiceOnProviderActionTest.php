@@ -3,6 +3,7 @@
 use Illuminate\Support\Str;
 use Rooberthh\Faktura\Actions\InitializeInvoiceOnProviderAction;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
+use Rooberthh\Faktura\Exceptions\InvoiceAlreadyInitializedException;
 use Rooberthh\Faktura\Services\InMemoryGateway;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Tests\Stubs\FakeInMemoryGateway;
@@ -30,7 +31,8 @@ it('throws an exception if the invoice is already synced to an external provider
         ],
     );
 
-    expect(fn() => (new InitializeInvoiceOnProviderAction())->execute($invoice))->toThrow(DomainException::class)
+    expect(fn() => (new InitializeInvoiceOnProviderAction())->execute($invoice))
+        ->toThrow(InvoiceAlreadyInitializedException::class)
         ->and($invoice->provider)->toBe(Provider::IN_MEMORY)
         ->and($invoice->external_id)->toBe($invoice->external_id);
 });
