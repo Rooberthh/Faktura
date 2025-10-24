@@ -8,6 +8,7 @@ use Rooberthh\Faktura\Support\DataObjects\Invoice;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
+use Rooberthh\Faktura\Support\Enums\VatRate;
 use Rooberthh\Faktura\Support\Objects\Price;
 use Rooberthh\Faktura\Tests\Stubs\FakeInMemoryGateway;
 
@@ -24,7 +25,7 @@ it('can sync an invoice of an invoiceDTO', function () {
             unitPriceExVat: Price::fromMinor(75),
             unitVatAmount: Price::fromMinor(25),
             unitPriceIncVat: Price::fromMinor(100),
-            vatRate: 25,
+            vatRate: VatRate::TwentyFive,
             subTotal: Price::fromMinor(75),
             vatTotal: Price::fromMinor(25),
             total: Price::fromMinor(100),
@@ -37,7 +38,7 @@ it('can sync an invoice of an invoiceDTO', function () {
             unitPriceExVat: Price::fromMinor(75),
             unitVatAmount: Price::fromMinor(25),
             unitPriceIncVat: Price::fromMinor(100),
-            vatRate: 25,
+            vatRate: VatRate::TwentyFive,
             subTotal: Price::fromMinor(150),
             vatTotal: Price::fromMinor(50),
             total: Price::fromMinor(200),

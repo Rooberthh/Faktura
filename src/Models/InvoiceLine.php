@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Database\Factories\InvoiceLineFactory;
+use Rooberthh\Faktura\Support\Enums\VatRate;
 use Rooberthh\Faktura\Support\Objects\Price;
 
 /**
@@ -18,7 +19,7 @@ use Rooberthh\Faktura\Support\Objects\Price;
  * @property Price $unit_price_ex_vat
  * @property Price $unit_vat_amount
  * @property Price $unit_price_inc_vat
- * @property int $vat_rate
+ * @property VatRate $vat_rate
  * @property Price $sub_total
  * @property Price $vat_total
  * @property Price $total
@@ -78,6 +79,7 @@ class InvoiceLine extends Model
             'sub_total' => PriceCast::class,
             'vat_total' => PriceCast::class,
             'total' => PriceCast::class,
+            'vat_rate' => VatRate::class,
         ];
     }
 }

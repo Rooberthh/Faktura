@@ -2,6 +2,7 @@
 
 namespace Rooberthh\Faktura\Support\DataObjects;
 
+use Rooberthh\Faktura\Support\Enums\VatRate;
 use Rooberthh\Faktura\Support\Objects\Price;
 use Stripe\InvoiceLineItem;
 
@@ -9,16 +10,6 @@ readonly class InvoiceLine
 {
     /**
      * @param  array<mixed, mixed> $metadata
-     * @param string $sku
-     * @param string $description
-     * @param int $quantity
-     * @param Price $unitPriceExVat
-     * @param Price $unitVatAmount
-     * @param Price $unitPriceIncVat
-     * @param int $vatRate
-     * @param Price $subTotal
-     * @param Price $vatTotal
-     * @param Price $total
      */
     public function __construct(
         public string $sku,
@@ -27,7 +18,7 @@ readonly class InvoiceLine
         public Price $unitPriceExVat,
         public Price $unitVatAmount,
         public Price $unitPriceIncVat,
-        public int $vatRate,
+        public VatRate $vatRate,
         public Price $subTotal,
         public Price $vatTotal,
         public Price $total,
@@ -48,7 +39,7 @@ readonly class InvoiceLine
         $unitPriceIncVat = $total->money()->divide($quantity);
         $unitVatAmount = $vatTotal->divide($quantity);
 
-        $vatRate = ($vatTotal->getAmount() / $subTotal->money()->getAmount()) * 100;
+        $vatRate = VatRate::from(($vatTotal->getAmount() / $subTotal->money()->getAmount()) * 100);
 
         return new self(
             sku: $lineItem->metadata['sku'],

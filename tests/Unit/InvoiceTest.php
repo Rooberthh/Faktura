@@ -10,6 +10,7 @@ use Rooberthh\Faktura\Support\DataObjects\Invoice as InvoiceDTO;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine as InvoiceLineDTO;
 use Rooberthh\Faktura\Support\Enums\Provider;
 use Rooberthh\Faktura\Support\Enums\Status;
+use Rooberthh\Faktura\Support\Enums\VatRate;
 use Rooberthh\Faktura\Support\Objects\Buyer;
 use Rooberthh\Faktura\Support\Objects\Price;
 use Rooberthh\Faktura\Support\Objects\Seller;
@@ -63,7 +64,7 @@ it('can sync itself from an InvoiceDTO', function () {
                     unitPriceExVat: Price::fromMinor(7500),
                     unitVatAmount: Price::fromMinor(2500),
                     unitPriceIncVat: Price::fromMinor(10000),
-                    vatRate: 25,
+                    vatRate: VatRate::TwentyFive,
                     subTotal: Price::fromMinor(15000),
                     vatTotal: Price::fromMinor(5000),
                     total: Price::fromMinor(20000),
@@ -88,7 +89,7 @@ it('can sync itself from an InvoiceDTO', function () {
     ->and($invoiceLine->unit_price_ex_vat->amount())->toBe(7500)
     ->and($invoiceLine->unit_vat_amount->amount())->toBe(2500)
     ->and($invoiceLine->unit_price_inc_vat->amount())->toBe(10000)
-    ->and($invoiceLine->vat_rate)->toBe(25)
+    ->and($invoiceLine->vat_rate)->toBe(VatRate::TwentyFive)
     ->and($invoiceLine->sub_total->amount())->toBe(15000)
     ->and($invoiceLine->vat_total->amount())->toBe(5000)
     ->and($invoiceLine->total->amount())->toBe(20000);

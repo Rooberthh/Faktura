@@ -4,6 +4,7 @@ namespace Rooberthh\Faktura\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Rooberthh\Faktura\Models\InvoiceLine;
+use Rooberthh\Faktura\Support\Enums\VatRate;
 use Rooberthh\Faktura\Support\Objects\Price;
 
 /**
@@ -21,12 +22,12 @@ class InvoiceLineFactory extends Factory
     public function definition(): array
     {
         $priceInMajor = $this->faker->numberBetween(10, 2800);
-        $vatRate = $this->faker->randomElement([0, 6, 12, 25]);
+        $vatRate = $this->faker->randomElement(VatRate::cases());
 
         $priceIncVatCents = bcmul((string) $priceInMajor, "100");
 
         $priceExVat = ($vatRate > 0)
-            ? intdiv((int) $priceIncVatCents, (100 + $vatRate)) * 100
+            ? intdiv((int) $priceIncVatCents, (100 + $vatRate->value)) * 100
             : $priceIncVatCents;
 
         $quantity = $this->faker->numberBetween(1, 3);
