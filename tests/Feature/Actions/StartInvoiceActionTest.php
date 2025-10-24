@@ -3,6 +3,7 @@
 use Rooberthh\Faktura\Actions\StartInvoiceAction;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine;
 use Rooberthh\Faktura\Support\Objects\Price;
+use Rooberthh\Faktura\Support\Objects\Seller;
 use Rooberthh\Faktura\Tests\Stubs\FakeBillableUser;
 
 it('can start an invoice', function () {
@@ -38,8 +39,20 @@ it('can start an invoice', function () {
         ),
     ];
 
+    $seller = new Seller(
+        name: 'Default',
+        address: 'test',
+        city: 'test',
+        postalCode: '54135',
+        country: 'sweden',
+        orgNumber: '199803199570',
+        vatNumber: '199803199570',
+        iban: 'my-iban-number',
+    );
+
     $invoice = (new StartInvoiceAction())->execute(
         billable: $billable,
+        seller: $seller,
         lines: $lines,
     );
 
