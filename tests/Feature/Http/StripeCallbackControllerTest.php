@@ -4,14 +4,15 @@ use Illuminate\Support\Facades\Bus;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Jobs\SyncInvoiceJob;
 use Rooberthh\Faktura\Models\Invoice;
+use Rooberthh\Faktura\Services\Stripe\Event;
 use Rooberthh\Faktura\Support\Enums\Status;
 
-it('dispatches a job that handles the syncing of an invoice for the invoice-paid', function () {
+it('dispatches a job that handles the syncing of an invoice for the invoice-paid', function (Event $event) {
     Config::set('faktura.stripe.webhook_secret', 'whsec_test_secret');
     Bus::fake();
 
     // Load the fixture for checkout success.
-    $payload = $this->loadFixture('stripe-invoice-paid');
+    $payload = $this->loadFixture('stripe-' . $event->value);
 
     // Create an invoice with empty lines
     $invoice = InvoiceFactory::new()
@@ -38,14 +39,14 @@ it('dispatches a job that handles the syncing of an invoice for the invoice-paid
     Bus::assertDispatched(SyncInvoiceJob::class, function (SyncInvoiceJob $job) use ($invoice) {
         return $job->invoiceId === $invoice->id;
     });
-});
+})->with(Event::cases());
 
 it('does not process webhooks with invalid secret', function () {
     $oldSecret = 'whsec_test_wrong_secret';
     Config::set('faktura.stripe.webhook_secret', 'whsec_test_secret');
 
     // Load the fixture for checkout success.
-    $payload = $this->loadFixture('stripe-invoice-paid');
+    $payload = $this->loadFixture('stripe-invoice.paid');
 
     // Create an invoice with empty lines
     $invoice = InvoiceFactory::new()
@@ -84,7 +85,7 @@ it('does not process an invoice that does not exist in the system', function () 
     Config::set('faktura.stripe.webhook_secret', 'whsec_test_secret');
 
     // Load the fixture for checkout success.
-    $payload = $this->loadFixture('stripe-invoice-paid');
+    $payload = $this->loadFixture('stripe-invoice.paid');
 
     $stripeSignature = generateStripeSignature(json_encode($payload), config('faktura.stripe.webhook_secret'));
 

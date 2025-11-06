@@ -27,21 +27,24 @@ class StripeCallbackController extends Controller
                 config('faktura.stripe.webhook_secret'),
             );
 
-            $internalEvent = Event::from($event->type);
+            $internalEvent = Event::tryFrom($event->type);
 
-            if ($internalEvent === Event::INVOICE_PAID) {
-                /** @var Invoice|null $invoice */
-                $invoice = Invoice::query()
-                    ->provider(Provider::STRIPE)
-                    ->where('external_id', $event->data->object->id)
-                    ->first();
-
-                if (! $invoice) {
-                    return response('Invalid invoice_id', 400);
-                }
-
-                dispatch(new SyncInvoiceJob($invoice->id));
+            // If we should not respond to event just say ok.
+            if (! $internalEvent) {
+                return response('Ok', 200);
             }
+
+            /** @var Invoice|null $invoice */
+            $invoice = Invoice::query()
+                ->provider(Provider::STRIPE)
+                ->where('external_id', $event->data->object->id)
+                ->first();
+
+            if (! $invoice) {
+                return response('Invalid invoice_id', 400);
+            }
+
+            dispatch(new SyncInvoiceJob($invoice->id));
 
             return response('Ok', 200);
         } catch (SignatureVerificationException|UnexpectedValueException $e) {
