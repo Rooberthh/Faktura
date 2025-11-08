@@ -12,6 +12,7 @@ use Rooberthh\Faktura\Builders\InvoiceBuilder;
 use Rooberthh\Faktura\Casts\BuyerCast;
 use Rooberthh\Faktura\Casts\PriceCast;
 use Rooberthh\Faktura\Casts\SellerCast;
+use Rooberthh\Faktura\Contracts\Billable;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Services\InMemoryGateway;
@@ -34,7 +35,7 @@ use Rooberthh\Faktura\Support\Objects\Seller;
  * @property Provider                     $provider
  * @property string                       $external_id
  * @property Collection<int, InvoiceLine> $lines
- * @property Model                        $billable
+ * @property Model|Billable                        $billable
  * @method static InvoiceBuilder query()
  */
 class Invoice extends Model

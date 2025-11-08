@@ -24,13 +24,18 @@ class StripeGateway implements GatewayContract
 
     public function createInvoice(Invoice $invoice): InvoiceDTO
     {
-        $stripeInvoice = $this->client->invoices->create($this->getInvoicePayload($invoice));
+        $stripeInvoice = $this->client->invoices->create(
+            [
+                'auto_advance' => false,
+                'customer' => $invoice->billable->getExternalId(),
+            ]
+        );
 
         foreach ($invoice->lines as $line) {
             $this->client->invoiceItems->create(
                 [
                     'invoice'             => $stripeInvoice->id,
-                    'customer'            => 'cus_SF5PGh60JEglp4',
+                    'customer'            => $invoice->billable->getExternalId(),
                     'currency'            => 'SEK',
                     'description'         => $line->description,
                     'quantity'            => $line->quantity,
