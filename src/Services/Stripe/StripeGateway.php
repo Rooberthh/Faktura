@@ -27,7 +27,7 @@ class StripeGateway implements GatewayContract
         $stripeInvoice = $this->client->invoices->create(
             [
                 'auto_advance' => false,
-                'customer' => $invoice->billable->getExternalId(),
+                'customer' => $invoice->buyer->externalId,
             ]
         );
 
@@ -35,7 +35,7 @@ class StripeGateway implements GatewayContract
             $this->client->invoiceItems->create(
                 [
                     'invoice'             => $stripeInvoice->id,
-                    'customer'            => $invoice->billable->getExternalId(),
+                    'customer'            => $invoice->buyer->externalId,
                     'currency'            => 'SEK',
                     'description'         => $line->description,
                     'quantity'            => $line->quantity,
