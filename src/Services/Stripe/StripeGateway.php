@@ -54,16 +54,4 @@ class StripeGateway implements GatewayContract
 
         return InvoiceDTO::fromInvoice($invoice);
     }
-
-    /**
-     * @param  Invoice  $invoice
-     * @return array{customer: string, auto_advance: boolean}
-     */
-    protected function getInvoicePayload(Invoice $invoice): array
-    {
-        return [
-            'customer'     => 'cus_SF5PGh60JEglp4',
-            'auto_advance' => false,
-        ];
-    }
 }

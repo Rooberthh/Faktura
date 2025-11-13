@@ -9,4 +9,8 @@ enum Event: string
     case INVOICE_MARKED_UNCOLLECTIBLE = 'invoice.marked_uncollectible';
     case INVOICE_FINALIZED = 'invoice.finalized';
     case INVOICE_DELETED = 'invoice.deleted';
+    case INVOICE_PAYMENT_FAILED = 'invoice.payment_failed';
+    case INVOICE_SENT = 'invoice.sent';
+    case INVOICE_ITEM_CREATED = 'invoiceitem.created';
+    case INVOICE_ITEM_DELETED = 'invoiceitem.deleted';
 }

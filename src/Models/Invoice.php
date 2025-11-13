@@ -35,6 +35,7 @@ use Rooberthh\Faktura\Support\Objects\Seller;
  * @property Provider                     $provider
  * @property string                       $external_id
  * @property Collection<int, InvoiceLine> $lines
+ * @property Collection<int, InvoiceEvent> $events
  * @property Model|Billable                        $billable
  * @method static InvoiceBuilder query()
  */
@@ -55,6 +56,7 @@ class Invoice extends Model
         'billing_country',
         'billing_org_number',
         'billing_vat_number',
+        'billing_external_id',
         'seller_name',
         'seller_address',
         'seller_postal_code',
@@ -152,6 +154,12 @@ class Invoice extends Model
     {
         $this->total = Price::fromMinor($this->lines()->sum('total'));
         $this->save();
+    }
+
+    /** @return HasMany<InvoiceEvent, $this> */
+    public function events(): HasMany
+    {
+        return $this->hasMany(InvoiceEvent::class);
     }
 
     public function newEloquentBuilder($query)
