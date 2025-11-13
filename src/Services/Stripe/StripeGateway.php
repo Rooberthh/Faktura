@@ -28,7 +28,7 @@ class StripeGateway implements GatewayContract
             [
                 'auto_advance' => false,
                 'customer' => $invoice->buyer->externalId,
-            ]
+            ],
         );
 
         foreach ($invoice->lines as $line) {

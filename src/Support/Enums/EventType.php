@@ -2,10 +2,10 @@
 
 namespace Rooberthh\Faktura\Support\Enums;
 
-use Rooberthh\Faktura\Services\Stripe\Event;
 use Rooberthh\Faktura\Services\Stripe\Event as StripeEvent;
 
-enum EventType: string {
+enum EventType: string
+{
     case INVOICE_PAID = 'invoice.paid';
     case INVOICE_VOIDED = 'invoice.voided';
     case INVOICE_MARKED_UNCOLLECTIBLE = 'invoice.marked_uncollectible';
@@ -14,7 +14,7 @@ enum EventType: string {
     case INVOICE_PAYMENT_FAILED = 'invoice.payment_failed';
     case INVOICE_SENT = 'invoice.sent';
     case INVOICE_ITEM_CREATED = 'invoiceitem.created';
-    case INVOICE_ITEM_DELETED= 'invoiceitem.deleted';
+    case INVOICE_ITEM_DELETED = 'invoiceitem.deleted';
 
     public static function fromStripeEvent(StripeEvent $stripeEvent): EventType
     {

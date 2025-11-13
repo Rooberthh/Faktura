@@ -5,7 +5,6 @@ namespace Rooberthh\Faktura\Console\Commands;
 use Illuminate\Console\Command;
 use Rooberthh\Faktura\Database\Factories\InvoiceFactory;
 use Rooberthh\Faktura\Database\Factories\InvoiceLineFactory;
-use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Services\Stripe\StripeGateway;
 use Stripe\StripeClient;
 
@@ -22,8 +21,8 @@ class CreateInvoiceCommand extends Command
             ->stripe()
             ->create(
                 [
-                    'billing_external_id' => 'cus_SF5PGh60JEglp4'
-                ]
+                    'billing_external_id' => 'cus_SF5PGh60JEglp4',
+                ],
             );
 
         $client = new StripeClient(config('faktura.stripe.api_key'));

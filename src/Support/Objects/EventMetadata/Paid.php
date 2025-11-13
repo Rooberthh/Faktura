@@ -4,7 +4,8 @@ namespace Rooberthh\Faktura\Support\Objects\EventMetadata;
 
 readonly class Paid
 {
-    public function __construct() {
+    public function __construct()
+    {
         //
     }
 

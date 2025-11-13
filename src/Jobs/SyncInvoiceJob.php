@@ -34,7 +34,7 @@ class SyncInvoiceJob implements ShouldQueueAfterCommit
     public function middleware(): array
     {
         return [
-            new WithoutOverlapping((string) $this->invoiceId)
+            new WithoutOverlapping((string) $this->invoiceId),
         ];
     }
 }

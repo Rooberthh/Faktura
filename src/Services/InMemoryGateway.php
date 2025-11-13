@@ -2,7 +2,6 @@
 
 namespace Rooberthh\Faktura\Services;
 
-use Exception;
 use Illuminate\Support\Str;
 use Rooberthh\Faktura\Contracts\GatewayContract;
 use Rooberthh\Faktura\Models\Invoice;

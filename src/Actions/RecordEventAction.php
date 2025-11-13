@@ -8,10 +8,9 @@ use Rooberthh\Faktura\Contracts\Billable;
 use Rooberthh\Faktura\Models\Invoice;
 use Rooberthh\Faktura\Support\DataObjects\InvoiceLine;
 use Rooberthh\Faktura\Support\Enums\EventType;
-use Rooberthh\Faktura\Support\Enums\Status;
-use Rooberthh\Faktura\Support\Objects\Seller;
 
-class RecordEventAction {
+class RecordEventAction
+{
     /**
      * @param  Billable&Model $billable
      * @param  InvoiceLine[] $lines
@@ -24,7 +23,7 @@ class RecordEventAction {
                 [
                     'type' => $eventType,
                     'occurred_at' => now(),
-                ]
+                ],
             );
         }, 3);
     }
